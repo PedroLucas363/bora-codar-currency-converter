@@ -80,6 +80,15 @@
   background-color: var(--surface-secondary);
 }
 
+.chevronIcon {
+  min-width: 2.4rem;
+}
+
+.textOption {
+  min-width: 3.2rem;
+  max-width: 3.2rem;
+}
+
 .optionsList {
   display: flex;
   flex-direction: column;

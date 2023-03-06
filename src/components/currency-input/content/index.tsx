@@ -88,8 +88,14 @@ function Content({
         <div className={styles.rightSideSelect} onClick={toggleDropdown}>
           <hr className={styles.divider} />
           {getIconFlagByCurrency(selectedOption?.code)}
-          <span className={styles.text}>{selectedOption?.code ?? "BRL"}</span>
-          {isOpen ? <TbChevronUp size={24} /> : <TbChevronDown size={24} />}
+          <span className={`${styles.text} ${styles.textOption}`}>
+            {selectedOption?.code ?? "BRL"}
+          </span>
+          {isOpen ? (
+            <TbChevronUp size={24} className={styles.chevronIcon} />
+          ) : (
+            <TbChevronDown size={24} className={styles.chevronIcon} />
+          )}
         </div>
       </div>
 
