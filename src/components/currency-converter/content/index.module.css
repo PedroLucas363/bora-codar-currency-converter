@@ -1,0 +1,47 @@
+.title {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 2rem;
+  line-height: 2.4rem;
+
+  color: var(--text-primary);
+}
+
+.container {
+  width: 80rem;
+  height: 69.2rem;
+
+  padding: 6.4rem 8rem;
+
+  background: var(--surface-primary);
+  box-shadow: 0 0.4rem 3.2rem rgba(15, 23, 42, 0.15);
+  border-radius: 1.6rem;
+}
+
+.selectContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.6rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.6rem;
+
+  margin-top: 1.6rem;
+}
+
+.header > div {
+  width: 100%;
+}
+
+.arrowButton {
+  max-width: 2.4rem;
+  display: flex;
+  align-items: center;
+
+  cursor: pointer;
+}
