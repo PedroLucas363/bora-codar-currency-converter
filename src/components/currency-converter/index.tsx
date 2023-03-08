@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import dayjs from "dayjs";
 
 import Content from "./content";
 
@@ -25,6 +26,8 @@ function CurrencyConverter() {
     string,
     number
   > | null>(null);
+  const [graphicData, setGraphicData] = useState<Record<string, number>>({});
+  const [daysRange, setDaysRange] = useState(30);
 
   const handleChangeCurrentPrice = (value: string) => {
     setCurrentPrice(value);
@@ -48,27 +51,68 @@ function CurrencyConverter() {
     setConvertedCurrency(current);
   };
 
+  const getCurrencyHistoryMock = (
+    conversionRateProp: Record<string, number> | null
+  ) => {
+    if (!conversionRateProp) return;
+    const priceBase = conversionRateProp[convertedCurrency.code];
+
+    let rangePriceVariation = daysRange > 30 ? 0.0001 : 0.5;
+
+    if (convertedCurrency.code === currentCurrency.code)
+      rangePriceVariation = 0;
+
+    const max = priceBase + rangePriceVariation;
+    const min =
+      priceBase > rangePriceVariation
+        ? priceBase - rangePriceVariation
+        : priceBase;
+
+    const result: Record<string, number> = {};
+
+    const today = new Date();
+
+    if (daysRange === 1) {
+      return {
+        [today.toISOString()]: Math.random() * (max - min) + min,
+        [dayjs().toString()]: Math.random() * (max - min) + min,
+      };
+    }
+
+    for (let i = 0; i < daysRange; i++) {
+      const date = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() - i
+      );
+      const dateString = date.toISOString().substring(0, 10);
+      result[dateString] = Math.random() * (max - min) + min;
+    }
+    return result;
+  };
+
+  const handleConvert = async () => {
+    try {
+      if (!conversionRate) return;
+
+      const convertedPrice =
+        parseFloat(getParsedValue(currentPrice)) *
+        conversionRate[convertedCurrency.code];
+
+      const finalConversion = formatCurrency(
+        convertedPrice,
+        convertedCurrency.code
+      );
+
+      handleChangeConvertedPrice(finalConversion);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    const handleConvert = async () => {
-      try {
-        if (!conversionRate) return;
-
-        const convertedPrice =
-          parseFloat(getParsedValue(currentPrice)) *
-          conversionRate[convertedCurrency.code];
-
-        const finalConversion = formatCurrency(
-          convertedPrice,
-          convertedCurrency.code
-        );
-
-        handleChangeConvertedPrice(finalConversion);
-      } catch (error) {
-        console.log(error);
-      }
-    };
     handleConvert();
-  }, [currentPrice, conversionRate, convertedCurrency]);
+  }, [currentPrice, conversionRate]);
 
   useEffect(() => {
     const fetchConversionTable = async () => {
@@ -76,9 +120,19 @@ function CurrencyConverter() {
         `https://api.exchangerate-api.com/v4/latest/${currentCurrency.code}`
       );
       setConversionRate(response.data.rates);
+      setGraphicData(getCurrencyHistoryMock(response.data.rates) ?? {});
     };
     fetchConversionTable();
   }, [currentCurrency]);
+
+  useEffect(() => {
+    handleConvert();
+    setGraphicData(getCurrencyHistoryMock(conversionRate) ?? {});
+  }, [convertedCurrency, daysRange]);
+
+  const handleClickChangeDaysRange = (days: number) => {
+    setDaysRange(days);
+  };
 
   return (
     <Content
@@ -92,6 +146,9 @@ function CurrencyConverter() {
       convertedPrice={convertedPrice}
       currentCurrency={currentCurrency}
       convertedCurrency={convertedCurrency}
+      graphicData={graphicData}
+      onClickChangeDaysRange={handleClickChangeDaysRange}
+      daysRange={daysRange}
     />
   );
 }
